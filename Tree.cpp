@@ -92,6 +92,7 @@ int FilePrintTree(Node* tree)
 	FILE* base_new = fopen("NewDataBase.txt", "w");
 
 	_FilePrintTree(base_new, tree);
+	fclose(base_new);
 	system("dot Tree.dot -T png -o Tree.png");
 	return 0;
 }
