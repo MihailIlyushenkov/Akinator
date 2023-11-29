@@ -1,1 +1,1 @@
-(<animal>(<bez zubov>(<leguh> <nil> <nil>)(<crocodile> <nil> <nil>))(<vedet matan>(<vedet na rt>(<petrovic> <nil> <nil>)(<lukashov> <nil> <nil>))(<ovchos> <nil> <nil>)))
+(<animal>(<bez zubov>(<v rakushke>(<ulitka> <nil> <nil>)(<leguh> <nil> <nil>))(<crocodile> <nil> <nil>))(<vedet matan>(<vedet na rt>(<petrovic> <nil> <nil>)(<lukashov> <nil> <nil>))(<ovchos> <nil> <nil>)))

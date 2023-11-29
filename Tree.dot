@@ -3,17 +3,21 @@ strict digraph {
 		Node_0 -> Node_1
 		Node_1 [label = "bez zubov", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
 		Node_1 -> Node_2
-		Node_2 [label = "leguh", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_1 -> Node_3
-		Node_3 [label = "crocodile", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_0 -> Node_4
-		Node_4 [label = "vedet matan", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_4 -> Node_5
-		Node_5 [label = "vedet na rt", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_5 -> Node_6
-		Node_6 [label = "petrovic", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_5 -> Node_7
-		Node_7 [label = "lukashov", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
-		Node_4 -> Node_8
-		Node_8 [label = "ovchos", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_2 [label = "v rakushke", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_2 -> Node_3
+		Node_3 [label = "ulitka", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_2 -> Node_4
+		Node_4 [label = "leguh", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_1 -> Node_5
+		Node_5 [label = "crocodile", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_0 -> Node_6
+		Node_6 [label = "vedet matan", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_6 -> Node_7
+		Node_7 [label = "vedet na rt", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_7 -> Node_8
+		Node_8 [label = "petrovic", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_7 -> Node_9
+		Node_9 [label = "lukashov", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
+		Node_6 -> Node_10
+		Node_10 [label = "ovchos", shape = "ellipse", style = "filled", fillcolor = "#1f77b4"]
 }

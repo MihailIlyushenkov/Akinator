@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <windows.h>
 
 size_t MAXNAMESIZE = 100;
 size_t MAXTREEDEEP = 20;
@@ -16,16 +17,17 @@ struct Node // структура для представления узлов �
 	Node* right = 0;
 };
 
-int free_tree(Node* tree)
+int tree_free(Node* tree)
 {
+	if (!tree) return 0;
 	free(tree->key);
-	free_tree(tree->left);
-	free_tree(tree->right);
+	tree_free(tree->left);
+	tree_free(tree->right);
 	free(tree);
 	return 0;
 }
 
-Node* create_node(char* key)
+Node* create_node(const char* key)
 {
     Node* newNode = (Node*) malloc(sizeof(Node));
     newNode->key = (char*)malloc(MAXNAMESIZE);
@@ -35,7 +37,7 @@ Node* create_node(char* key)
     return newNode;
 }
 
-int insert(Node** p, char* k) // вставка ключа k в узел p (возможно нулевой)
+int insert(Node** p, const char* k) // вставка ключа k в узел p (возможно нулевой)
 {
 	if( !p )
     {
@@ -52,12 +54,11 @@ int getanswer()
 {
 	int a = getchar();
 
-	if (a == 'Y') return 1;
-	else if (a == 'N') return 0;
+	if ((a == 'Y') || (a == 'N')) return a;
 	else return getanswer();
 }
 
-int PrintTree(Node* tree)
+int tree_print(Node* tree)
 {
 	if (!tree) {
 		printf(" <nil>");
@@ -65,14 +66,14 @@ int PrintTree(Node* tree)
 	}
 
 	printf("(<%s>", tree->key);
-	PrintTree(tree->left);
-	PrintTree(tree->right);
+	tree_print(tree->left);
+	tree_print(tree->right);
 	printf(")");
 
 	return 0;
 }
 
-int _FilePrintTree(FILE* file, Node* tree)
+int _tree_print_file(FILE* file, Node* tree)
 {
 	if (!tree) {
 		fprintf(file, " <nil>");
@@ -80,20 +81,19 @@ int _FilePrintTree(FILE* file, Node* tree)
 	}
 
 	fprintf(file, "(<%s>", tree->key);
-	_FilePrintTree(file, tree->left);
-	_FilePrintTree(file, tree->right);
+	_tree_print_file(file, tree->left);
+	_tree_print_file(file, tree->right);
 	fprintf(file, ")");
 
 	return 0;
 }
 
-int FilePrintTree(Node* tree)
+int tree_print_file(Node* tree)
 {
 	FILE* base_new = fopen("NewDataBase.txt", "w");
 
-	_FilePrintTree(base_new, tree);
+	_tree_print_file(base_new, tree);
 	fclose(base_new);
-	system("dot Tree.dot -T png -o Tree.png");
 	return 0;
 }
 
@@ -102,33 +102,27 @@ int Write_database(Node* tree)
 	printf("obnovit bazu dannih?\n[Y/N] ");
 	if (!getanswer()) return 0;
 
-	FilePrintTree(tree);
+	tree_print_file(tree);
 	return 0;
 }
 
 int read_base(Node** tree, FILE* file)
 {
 	int a = 0;
-	char word[100] = {0};
+	char word[MAXNAMESIZE] = {0};
 
 	a = fgetc(file);
-	// fscanf(file, "%c", &a);
 	while (a == ')') fscanf(file, "%c", &a);
 
-	// printf("readed %c = %d\n", a, a);
 
 
 	switch (a) {
 	case '(': 	fscanf(file, "<%[^<>]>", word);
-					// printf("1 - readed %s\n", word);
 					(*tree) = create_node(word);
-					// printf("     parsing left\n");
 					read_base( &((*tree)->left), file);
-					// printf("     parsing right\n");
 					read_base( &((*tree)->right), file);
 					return 0;
 	case ' ': 	fscanf(file, "<%[^<>]>", word);
-					// printf("2 - readed %s\n", word);
 					if (strcmp(word, "nil") != 0) (*tree) = create_node(word);
 					return 0;
 	case ')': 	return 0;
@@ -136,7 +130,7 @@ int read_base(Node** tree, FILE* file)
 	}
 }
 
-int add_new_chel(Node *tree, char* object_name)
+int add_new_chel(Node *tree, const char* object_name)
 {
 	printf("vi hotite dobavit' etot object v bazu dannih?\n[Y/N] ");
 
@@ -148,7 +142,7 @@ int add_new_chel(Node *tree, char* object_name)
 	char criteria[MAXNAMESIZE] = {0};
 
 	scanf("%c", criteria);
-	scanf("%[^<>]", criteria);
+	scanf("<%[^<>]>", criteria);
 
 	printf("\n|%s|", criteria);
 
@@ -168,7 +162,7 @@ int Guess(Node* tree)
 
 	int a = getanswer();
 
-	if (a == 1) {
+	if (a == 'Y') {
 		if (tree->left != 0) {
 			Guess(tree->left);
 			return 0;
@@ -222,6 +216,8 @@ int DUMP(Node* tree)
 	_dump(dumpfile, tree, &counter);
 	fprintf(dumpfile, "}");
 	fclose(dumpfile);
+	system("dot Tree.dot -T png -o Tree.png");
+	system(".\\Tree.png");
 	return 0;
 }
 
@@ -251,7 +247,7 @@ int get_objects(Node* tree)
 	return 0;
 }
 
-print_path(Node** path)
+int print_path(Node** path)
 {
 	if (path == 0) {
 		printf("path is 0");
@@ -265,14 +261,12 @@ print_path(Node** path)
 	return 0;
 }
 
-int _getpath(Node* tree, char* word, int level, Node** path)
+int _getpath(Node* tree, const char* word, int level, Node** path)
 {
-	// printf("checing element %s on level %d\n", tree->key, level);
 	path[level] = tree;
 	// print_path(path);
 
 	if (strcmp(tree->key, word) == 0) {
-		// printf("yeeeeeeeeeeeeeee found %s\n", tree->key);
 		return 0;
 	}
 
@@ -302,8 +296,7 @@ int _getpath(Node* tree, char* word, int level, Node** path)
 	}
 }
 
-
-Node** getpath(Node* tree, char* word) {
+Node** getpath(Node* tree, const char* word) {
 	Node** path = (Node**) calloc(sizeof(Node*), MAXTREEDEEP);
 
 	_getpath(tree, word, 0, path);
@@ -317,13 +310,10 @@ int getyesno(Node** path, int* yesno)
 {
 	for (int i = 0; path[i+1] != 0; i++)
 	{
-		// printf("now %s (%p), left is %s (%p), right is %s (%p), next is %s (%p)\n", path[i]->key, path[i], path[i]->left->key, path[i]->left, path[i]->right->key, path[i]->right, path[i+1]->key, path[i+1]);
 		if (path[i]->right == path[i+1]) {
-			// printf("writed no\n");
 			yesno[i] = 0;
 		}
 		else {
-			// printf("writed yes\n");
 			yesno[i] = 1;
 		}
 	}
@@ -371,19 +361,12 @@ int diff(Node* tree)
 	getyesno(path1, yesno1);
 	getyesno(path2, yesno2);
 
-// 	for (int i = 0; (i < MAXTREEDEEP) && (yesno1[i] != -1); i++)
-// 	{
-// 		printf("yesno1[%d] = %d\n", i, yesno1[i]);
-// 	}
-//
-// 	printf("\n");
-// 	for (int i = 0;(i < MAXTREEDEEP) && (yesno2[i] != -1); i++)
-// 	{
-// 		printf("yesno2[%d] = %d\n", i, yesno2[i]);
-// 	}
+
 
 	int i = 0;
-	printf("%s and %s are similar because they both are ", word1, word2);
+	if ((yesno1[i] == yesno2[i]) && (yesno1[i] != -1))
+		printf("%s and %s are similar because they both are ", word1, word2);
+
 	while ( (yesno1[i] == yesno2[i]) && (yesno1[i] != -1) ) {
 		if (yesno1[i] == 0) printf("not ");
 		printf("%s ", path1[i]->key);
@@ -391,7 +374,8 @@ int diff(Node* tree)
 	}
 
 	if (yesno1[i] != -1) {
-		printf("but they are different because ");
+		if (i != 0) printf("but");
+		printf("they are different because ");
 		printf("%s is ", word1);
 		describe(path1, yesno1, i);
 	}
@@ -405,43 +389,49 @@ int diff(Node* tree)
 	return 0;
 }
 
+#define MAXNAMESIZE
 int Start(Node* tree)
 {
 	printf("akinator programm, press any key to continue\n");
 	getchar();
-	char command[100] = {0};
+	char command[MAXNAMESIZE] = {0};
 
-	for (int i = 0; i < 100; i++) {
-		printf("what do you want?\nguess / objects / data / diff / exit\n");
+	while (true) {
+		printf("what do you want?\n[g]uess / [o]bjects / [s]how / [d]iff / [e]xit\n");
 		scanf("%s", command);
 
-
-		if (strcmp(command, "guess") == 0) {
+		if ((strcmp(command, "guess") == 0) || (strcmp(command, "g") == 0)) {
 			Guess(tree);
 		}
-		else if (strcmp(command, "objects") == 0) {
+		else if ((strcmp(command, "objects") == 0) || (strcmp(command, "o") == 0)) {
 			get_objects(tree);
 		}
-		else if (strcmp(command, "data") == 0) {
+		else if ((strcmp(command, "show") == 0) || (strcmp(command, "s") == 0)){
 			DUMP(tree);
-			Write_database(tree);
 		}
-		else if (strcmp(command, "diff") == 0) {
+		else if ((strcmp(command, "diff") == 0) || (strcmp(command, "d") == 0)){
 			diff(tree);
 		}
-		else if (strcmp(command, "exit") == 0) {
+		else if ((strcmp(command, "exit") == 0) || (strcmp(command, "e") == 0)) {
+			Write_database(tree);
+
 			return 0;
 		}
 		else {
-			printf("\ninvalid syntaxis\n\n");
+			printf("\ninvalid syntaxis <%s>\n\n", command);
 		}
 
 	}
 	return 0;
 }
 
+// TODO: Проверки на то что у тебя вводимая строка влезает в MAXNAMESIZE
+// TODO: Use CleanBuffer from SquareEquation
+// TODO: или норм английский или русский язык
 int main(const int argc, const char* argv[])
 {
+	SetConsoleOutputCP(CP_UTF8);
+
 	Node* tree = 0;
 	const char* filename = "database.txt";
 
@@ -451,11 +441,6 @@ int main(const int argc, const char* argv[])
 	fclose(database_file);
 
 	Start(tree);
-
-
-//
-// 	printf("exited recursia\n");
-// 	PrintTree(tree);
 
 	return 0;
 }
